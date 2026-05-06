@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+venv/
+.venv/
+*.converted.txt
+
+# macOS
+.DS_Store
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+
+# Output
+output/
+
+# Cookies (sensitive)
+cookies.json
+*_cookies.json
+*_state.json
+
+# Logs
+*.log
