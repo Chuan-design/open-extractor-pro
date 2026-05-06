@@ -1,0 +1,12 @@
+# open-extractor-pro 依赖
+# 两个脚本均使用 Python 标准库，无需额外安装
+
+# 小红书提取 (xhs_extract.py)
+# - urllib (built-in)
+# - json, re, os (built-in)
+# - Cookies 需要从浏览器手动导出为 ~/cookies.json
+
+# MakerWorld 提取 (makerworld_extract.py)
+# - urllib (built-in)
+# - 本地文件解析模式无需任何依赖
+# - 在线抓取模式使用 urllib (built-in)
