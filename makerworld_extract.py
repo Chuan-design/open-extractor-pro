@@ -253,7 +253,7 @@ source: {source_url}
 created: {timestamp}
 description: "{desc_short.replace(chr(10), ' ').replace('"', "'")}"
 tags:
-  - {chr(10).join(f'  - {t}' for t in yaml_tags)}
+  - {chr(10).join(t for t in yaml_tags)}
 ---
 
 # {title}
@@ -360,6 +360,30 @@ def extract(design, source_url=''):
     return out_path
 
 
+
+def fetch_from_safari(url):
+    """通过 Safari AppleScript 获取页面源码（过 Cloudflare）"""
+    import subprocess
+    scpt = 'tell application "Safari"\n'
+    scpt += '    activate\n'
+    scpt += '    set URL of front document to "' + url + '"\n'
+    scpt += '    delay 4\n'
+    scpt += '    set pageSource to source of front document\n'
+    scpt += 'end tell\n'
+    try:
+        result = subprocess.run(['osascript', '-e', scpt], capture_output=True, text=True, timeout=30)
+        if result.returncode != 0:
+            return None, f'AppleScript 失败: {result.stderr}'
+        page = result.stdout
+        if len(page) < 1000:
+            return None, f'Safari 返回页面过小 ({len(page)} 字节)，可能未完全加载'
+        return page, None
+    except subprocess.TimeoutExpired:
+        return None, 'Safari 超时'
+    except FileNotFoundError:
+        return None, '未找到 osascript，请确认使用 macOS'
+
+
 def main():
     if len(sys.argv) < 2:
         print("用法:")
@@ -367,6 +391,35 @@ def main():
         print("  python3 makerworld_extract.py <MakerWorld链接>")
         print(f"\n输出目录: {OUTPUT_DIR}")
         sys.exit(1)
+
+    # --safari 模式（通过 Safari 过 Cloudflare）
+    if sys.argv[1] == '--safari':
+        urls = sys.argv[2:]
+        if not urls:
+            print("❌ 请提供 MakerWorld URL")
+            sys.exit(1)
+        success = 0
+        fail = 0
+        for i, url in enumerate(urls):
+            print(f"[{i+1}/{len(urls)}] 🌐 通过 Safari 抓取: {url.split('/')[-1][:40]}...")
+            page, error = fetch_from_safari(url)
+            if error:
+                print(f"  ❌ {error}")
+                fail += 1
+                continue
+            design, error = parse_next_data(page)
+            if error:
+                print(f"  ❌ {error}")
+                fail += 1
+                continue
+            try:
+                extract(design, url)
+                success += 1
+            except Exception as e:
+                print(f"  ❌ 保存出错: {e}")
+                fail += 1
+        print(f"\n完成: {success} 成功, {fail} 失败")
+        return
 
     arg = sys.argv[1]
 
@@ -376,7 +429,7 @@ def main():
         design, error = fetch_from_url(arg)
         if error:
             print(f"❌ {error}")
-            print("提示: MakerWorld 可能有 Cloudflare 保护，建议用 '保存页面为 HTML' 方式再试")
+            print("提示: MakerWorld 可能有 Cloudflare 保护，建议用 --safari 模式")
             sys.exit(1)
         out = extract(design, arg)
         print(f"✓ 已保存: {out}")

@@ -146,13 +146,21 @@ def generate_content(url, post_id, note):
         rel = "你在做 AI Agent 相關項目，AI 生成可執行腳本解決實際痛點是 Agent 應用的典型模式。"
         worth = "是。DIY 和創意項目展示了 AI 工具落地的實用路徑，值得研究。"
 
+    # Clean source URL: strip xsec_token and xsec_source params
+    clean_url = re.sub(r'[?&]xsec_token=[^&]*', '', url)
+    clean_url = re.sub(r'[?&]xsec_source=[^&]*', '', clean_url)
+
+    # YAML tags: clippings + extracted tags
+    yaml_tags = ['clippings'] + tags_raw
+    tags_yaml = '\n  - '.join(yaml_tags)
+
     content = f"""---
 title: {title}
-source: {url}
+source: {clean_url}
 created: {datetime.datetime.now().strftime('%Y-%m-%d')}
-description: "{desc_clean[:150].replace(chr(10), ' ')}"
+description: "{desc_clean[:150].replace(chr(10), ' ').replace('"', "'")}"
 tags:
-  - clippings
+  - {tags_yaml}
 ---
 # {title}
 

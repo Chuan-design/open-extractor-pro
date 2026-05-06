@@ -10,6 +10,16 @@
 | 🖨️ **MakerWorld** | `makerworld_extract.py` | 3D 模型信息、打印参数、图片 → Obsidian 笔记 |
 | 🔜 更多 | 敬请期待 | 按需扩展... |
 
+### 🎯 统一入口（推荐）
+
+所有平台共用一个命令，自动识别链接类型：
+
+```bash
+python3 extract.py <链接或文件路径>
+python3 extract.py <链接1> <链接2> ...  # 同时提取多个（跨平台混排也行）
+python3 extract.py --batch <文件>        # 从文件读取链接列表
+```
+
 ## 🚀 快速开始
 
 ### 前置要求
@@ -27,6 +37,16 @@ cd open-extractor-pro
 两个脚本均使用 Python 标准库，**无需额外安装依赖**。
 
 ### 使用方法
+
+#### 🎯 统一入口（推荐）
+
+```bash
+python3 extract.py <链接或文件路径>
+python3 extract.py <链接1> <链接2> ...
+python3 extract.py --batch <文件>
+```
+
+自动识别提小红书链接、MakerWorld 链接和本地文件，并调用对应的提取逻辑。
 
 #### 📕 小红书帖子提取
 
@@ -55,7 +75,21 @@ python3 makerworld_extract.py 1111.rtf
 python3 makerworld_extract.py 1111.txt
 ```
 
-**方式 2：直接 URL 抓取**
+**方式 2：Safari AppleScript（推荐，自动过 Cloudflare）**
+
+Safari 保持登录态，脚本自动提取源码，无需手动保存文件：
+
+```bash
+python3 extract.py --safari <MakerWorld URL>
+python3 makerworld_extract.py --safari <MakerWorld URL>
+```
+
+支持一次性批量提取多个链接：
+```bash
+python3 extract.py --safari <URL1> <URL2> ...
+```
+
+**方式 3：直接 URL 抓取（可能被 Cloudflare 拦截）**
 
 ```bash
 python3 makerworld_extract.py https://makerworld.com.cn/models/xxx
@@ -109,6 +143,7 @@ tags: [clippings, makerworld, 3d打印]
 
 ```
 open-extractor-pro/
+├── extract.py               # 统一入口（推荐）
 ├── xhs_extract.py           # 小红书帖子提取工具
 ├── makerworld_extract.py    # MakerWorld 3D 模型提取工具
 ├── requirements.txt         # 依赖说明（标准库，免安装）
@@ -135,7 +170,9 @@ open-extractor-pro/
 ## 📝 更新计划
 
 - [ ] 支持更多平台（知乎、B站等）
-- [ ] 统一入口脚本
+- [x] 统一入口脚本 (`extract.py`)
+- [x] Claude Code Skill (`/open-extractor`)
+- [ ] 支持更多平台（知乎、B站等）
 - [ ] 批量处理优化
 
 ## 📄 许可证
